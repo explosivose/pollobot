@@ -5,10 +5,10 @@ using System.Collections;
 [System.Serializable] 	// Expose servo specification to UnityEditor
 public class GenericServo : IActuator {
 
-	public float maxPos;
-	public float minPos;
-	public float maxVel;	// Velocity (degrees per second)
-	public float maxTor; 	// Torque
+	public float maxPos = 170f;
+	public float minPos = -170f;
+	public float maxVel = 360f;		// Velocity (degrees per second)
+	public float maxTor = 10f; 		// Torque
 
 	// Constructor
 	public void Init(HingeJoint hingeJoint) {
