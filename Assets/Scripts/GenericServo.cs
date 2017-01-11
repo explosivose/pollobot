@@ -7,7 +7,7 @@ public class GenericServo : IActuator {
 
 	public float maxPos;
 	public float minPos;
-	public float maxVel;	// Velocity
+	public float maxVel;	// Velocity (degrees per second)
 	public float maxTor; 	// Torque
 
 	// Constructor
@@ -54,7 +54,6 @@ public class GenericServo : IActuator {
 
 	// This is cheating, use a sensor instead
 	public float Position() {
-		// FIXME this is always positive which fucks up PID control 
-		return Quaternion.Angle(hingeJoint.connectedBody.transform.rotation, hingeJoint.transform.rotation);
+		return hingeJoint.angle;
 	}
 }
