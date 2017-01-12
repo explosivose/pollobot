@@ -45,15 +45,19 @@ public class GenericServo : IActuator {
 	}
 
 	// Actuate!
-	public void Command(float command) {
-		command = Mathf.Clamp (command, -1f, 1f);
-		JointMotor mot = motor;
-		mot.targetVelocity = command * maxVel;
-		motor = mot;
+	public float command {
+		set {
+			// Clamp targetVelocity to max velocity to mimic servos
+			JointMotor mot = motor;
+			mot.targetVelocity = Mathf.Clamp(value, -1f, 1f) * maxVel;
+			motor = mot;
+		}
 	}
 
 	// This is cheating, use a sensor instead
-	public float Position() {
-		return hingeJoint.angle;
+	public float position {
+		get {
+			return hingeJoint.angle;
+		}
 	}
 }

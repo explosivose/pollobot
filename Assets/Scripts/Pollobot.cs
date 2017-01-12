@@ -5,12 +5,10 @@ using System.Collections.Generic;
 public class Pollobot : MonoBehaviour {
 
 	public GenericServo leftPatellaServo;
+	public PidControl leftPatellaControl;
 	public GenericServo rightPatellaServo;
 
-	public float kp = 1, ki, kd;
 	private float command;
-	private float prev_error;
-	private float integral = 0;
 
 	// References to child rigidbodies
 	private List<Rigidbody> rigidbodies = new List<Rigidbody>();
@@ -28,6 +26,7 @@ public class Pollobot : MonoBehaviour {
 		// left leg servo setup
 		leftFemur = transform.FindChild ("Left Femur");
 		leftPatellaServo.Init(leftFemur.GetComponent<HingeJoint> ());
+		leftPatellaControl.Init(leftPatellaServo);
 		// Centre of mass marker
 		gameObject.GetComponentsInChildren<Rigidbody>(rigidbodies);
 		centreOfMass = transform.FindChild("Centre Of Mass");
@@ -41,16 +40,10 @@ public class Pollobot : MonoBehaviour {
 
 		rightPatellaServo.UpdateModel();
 		leftPatellaServo.UpdateModel();
+		leftPatellaControl.SetPoint (command);
 		// Simple PID control for servo
-		// TODO move PID functionality to a controller class
 		// TODO add a second controller for the left patella servo
 		// TODO add "Left/Right Forward/Side Trochanter" servos (the hip ones)
-		float error = command - rightPatellaServo.Position (); // TODO use a sensor model to get position
-		integral = integral + error * Time.deltaTime;
-		float derivative = (error - prev_error) / Time.deltaTime;
-		float output = kp * error + ki * integral + kd * derivative;
-		prev_error = error;
-		rightPatellaServo.Command (output);
 	}
 
 	void MarkCentreOfMass() {
@@ -69,6 +62,6 @@ public class Pollobot : MonoBehaviour {
 		GUILayout.Label ("Pollobot v0");
 		GUILayout.Label(command.ToString());
 		command = GUILayout.HorizontalSlider (command, -180, 180);
-		GUILayout.Label (rightPatellaServo.Position ().ToString());
+		GUILayout.Label (rightPatellaServo.position.ToString());
 	}
 }

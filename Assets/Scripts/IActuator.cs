@@ -7,8 +7,8 @@ public interface IActuator  {
 	void UpdateModel();
 
 	// Send a command to the actuator
-	void Command(float command);
+	float command { set; } 
 
 	// Get the current actuator position (should only be used for debugging)
-	float Position();
+	float position { get; }
 }
