@@ -2,17 +2,30 @@
 using System.Collections;
 
 
-[System.Serializable] 	// Expose servo specification to UnityEditor
+//[System.Serializable] 	// Expose servo specification to UnityEditor
 public class GenericServo : IActuator {
 
-	public float maxPos = 170f;
-	public float minPos = -170f;
-	public float maxVel = 360f;		// Velocity (degrees per second)
-	public float maxTor = 10f; 		// Torque
+	[System.Serializable]
+	public class Parameters {
+		public float maxPos = 170f;
+		public float minPos = -170f;
+		public float maxVel = 360f;		// Velocity (degrees per second)
+		public float maxTor = 10f; 		// Torque
+	}
 
-	// Constructor
-	public void Init(HingeJoint hingeJoint) {
+	public Parameters parameters {
+		get; private set;
+	}
+
+	public GenericServo(HingeJoint hingeJoint, Parameters parameters) {
+		Init (hingeJoint, parameters);
+	}
+
+	// Initialize
+	public void Init(HingeJoint hingeJoint, Parameters parameters) {
+		Debug.Log ("GenericServo initialized.");
 		this.hingeJoint = hingeJoint;
+		this.parameters = parameters;
 		UpdateModel();
 	}
 
@@ -37,9 +50,9 @@ public class GenericServo : IActuator {
 		hingeJoint.useLimits = true;
 		JointLimits lim = limits;
 		JointMotor mot = motor;
-		lim.min = minPos;
-		lim.max = maxPos;
-		mot.force = maxTor;
+		lim.min = parameters.minPos;
+		lim.max = parameters.maxPos;
+		mot.force = parameters.maxTor;
 		limits = lim;
 		motor = mot;
 	}
@@ -49,7 +62,7 @@ public class GenericServo : IActuator {
 		set {
 			// Clamp targetVelocity to max velocity to mimic servos
 			JointMotor mot = motor;
-			mot.targetVelocity = Mathf.Clamp(value, -1f, 1f) * maxVel;
+			mot.targetVelocity = Mathf.Clamp(value, -1f, 1f) * parameters.maxVel;
 			motor = mot;
 		}
 	}

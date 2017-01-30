@@ -4,9 +4,17 @@ using System.Collections.Generic;
 
 public class Pollobot : MonoBehaviour {
 
-	public GenericServo leftPatellaServo;
-	public PidControl leftPatellaControl;
-	public GenericServo rightPatellaServo;
+	// TODO think about recording and plotting experiments
+	//	left/right foot and pelvic displacement over time (plot x,y,z seprately) 
+	//  pid and servo parameters, masses of rigidbodies
+
+	public GenericServo.Parameters patellaServoParams;
+	public PidControl.Parameters patellaPidParams;
+
+	private GenericServo leftPatellaServo;
+	private GenericServo rightPatellaServo;
+	private PidControl leftPatellaControl; 
+	private PidControl rightPatellaControl;
 
 	private float command;
 
@@ -20,32 +28,32 @@ public class Pollobot : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		// right leg servo setup
-		rightFemur = transform.FindChild("Right Femur");
-		rightPatellaServo.Init(rightFemur.GetComponent<HingeJoint> ());
-		// left leg servo setup
-		leftFemur = transform.FindChild ("Left Femur");
-		leftPatellaServo.Init(leftFemur.GetComponent<HingeJoint> ());
-		leftPatellaControl.Init(leftPatellaServo);
 		// Centre of mass marker
 		gameObject.GetComponentsInChildren<Rigidbody>(rigidbodies);
 		centreOfMass = transform.FindChild("Centre Of Mass");
+		// right leg servo setup
+		rightFemur = transform.FindChild("Right Femur");
+		rightPatellaServo = new GenericServo(rightFemur.GetComponent<HingeJoint>(), patellaServoParams);
+		// left leg servo setup
+		leftFemur = transform.FindChild ("Left Femur");
+		leftPatellaServo = new GenericServo(rightFemur.GetComponent<HingeJoint>(), patellaServoParams);
+		leftPatellaControl = new PidControl(leftPatellaServo, patellaPidParams);
 	}
 	
 	// Update is called once per frame
 	void Update () {
 
-		// Move the centreOfMass transform to pollobot's C.O.M.
+		// Move the centreOfMass marker to pollobot's C.O.M.
 		MarkCentreOfMass();
 
 		rightPatellaServo.UpdateModel();
 		leftPatellaServo.UpdateModel();
-		leftPatellaControl.SetPoint (command);
-		// Simple PID control for servo
+		leftPatellaControl.SetPoint(command);
 		// TODO add a second controller for the left patella servo
 		// TODO add "Left/Right Forward/Side Trochanter" servos (the hip ones)
 	}
 
+	// Move the centreOfMass marker to pollobot's C.O.M.
 	void MarkCentreOfMass() {
 		Vector3 centre = Vector3.zero;
 		float totalMass = 0f;
@@ -59,6 +67,8 @@ public class Pollobot : MonoBehaviour {
 	}
 
 	void OnGUI() {
+		// TODO read up on complex automation and control for robot limbs
+		// TODO separate manual GUI control class for testing available controllers
 		GUILayout.Label ("Pollobot v0");
 		GUILayout.Label(command.ToString());
 		command = GUILayout.HorizontalSlider (command, -180, 180);
